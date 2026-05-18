@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Mes Séances{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-6">
+    <div>
+        <h1 style="font-size: 1.375rem; font-weight: 700; letter-spacing: -0.3px;">Mes Séances</h1>
+        <p class="text-muted text-sm">Gérez vos séances et relevez les présences</p>
+    </div>
+</div>
+
+<div class="grid-2">
+
+    <div class="card" style="align-self: start;">
+        <div class="card-header"><span class="card-title">Nouvelle séance</span></div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary btn-block">Créer la séance</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Séances programmées</span>
+            <span class="badge badge-neutral">{{ seances_data|length }}</span>
+        </div>
+        {% if seances_data %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Date</th>
+                        <th>Présences</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in seances_data %}
+                    <tr>
+                        <td>
+                            <div class="fw-600">{{ item.seance.module.code }}</div>
+                            <div class="text-muted text-xs">{{ item.seance.module.intitule }}</div>
+                        </td>
+                        <td>
+                            <div>{{ item.seance.date|date:"d/m/Y" }}</div>
+                            <div class="text-muted text-xs">{{ item.seance.heure|time:"H:i" }}</div>
+                        </td>
+                        <td>
+                            <div class="text-sm fw-600">{{ item.present }}/{{ item.total }}</div>
+                            {% if item.total > 0 %}
+                            <div class="progress" style="margin-top: 5px; width: 70px;">
+                                <div class="progress-bar {% if item.taux >= 75 %}success{% elif item.taux >= 50 %}warning{% else %}danger{% endif %}"
+                                     style="width: {{ item.taux }}%;"></div>
+                            </div>
+                            {% else %}
+                            <div class="text-muted text-xs">Pas d'étudiants</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.375rem; flex-wrap: wrap;">
+                                <a href="{% url 'mark_attendance' item.seance.id %}" class="btn btn-secondary btn-sm">
+                                    Présences
+                                </a>
+                                <a href="{% url 'export_attendance_csv' item.seance.id %}" class="btn btn-secondary btn-sm">
+                                    Export CSV
+                                </a>
+                                <form method="post" action="{% url 'delete_seance' item.seance.id %}"
+                                      onsubmit="return confirm('Supprimer cette séance et toutes ses présences ?');"
+                                      style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>Aucune séance créée pour l'instant. Utilisez le formulaire pour en ajouter une.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

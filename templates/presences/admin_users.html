@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Utilisateurs{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-6">
+    <div>
+        <h1 style="font-size: 1.375rem; font-weight: 700; letter-spacing: -0.3px;">Utilisateurs</h1>
+        <p class="text-muted text-sm">Gestion des comptes de la plateforme</p>
+    </div>
+    <a href="{% url 'register' %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> Ajouter
+    </a>
+</div>
+
+<div class="tab-nav">
+    <a href="{% url 'admin_users' %}" class="tab-link {% if not role_filter %}active{% endif %}">
+        Tous
+    </a>
+    <a href="{% url 'admin_users' %}?role=etudiant" class="tab-link {% if role_filter == 'etudiant' %}active{% endif %}">
+        Etudiants
+    </a>
+    <a href="{% url 'admin_users' %}?role=enseignant" class="tab-link {% if role_filter == 'enseignant' %}active{% endif %}">
+        Enseignants
+    </a>
+    <a href="{% url 'admin_users' %}?role=admin" class="tab-link {% if role_filter == 'admin' %}active{% endif %}">
+        Admins
+    </a>
+</div>
+
+<div class="card">
+    {% if users %}
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom complet</th>
+                    <th>Identifiant</th>
+                    <th>Role</th>
+                    <th>Filière / CNE</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td class="fw-600">{{ u.get_full_name|default:"—" }}</td>
+                    <td class="text-muted text-sm">{{ u.username }}</td>
+                    <td>
+                        {% if u.role == 'admin' %}
+                            <span class="badge badge-info">Admin</span>
+                        {% elif u.role == 'enseignant' %}
+                            <span class="badge badge-warning">Enseignant</span>
+                        {% else %}
+                            <span class="badge badge-neutral">Etudiant</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-sm text-muted">
+                        {% if u.filiere %}{{ u.filiere }}{% endif %}
+                        {% if u.cne %} &mdash; {{ u.cne }}{% endif %}
+                        {% if not u.filiere and not u.cne %}—{% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        {% if u != request.user %}
+                        <form method="post" action="{% url 'delete_user' u.id %}"
+                              onsubmit="return confirm('Supprimer le compte « {{ u.username }} » ? Cette action est irréversible.');"
+                              style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted text-xs">Votre compte</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>Aucun utilisateur trouvé pour ce filtre.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

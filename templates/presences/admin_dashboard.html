@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-6">
+    <div>
+        <h1 style="font-size: 1.375rem; font-weight: 700; letter-spacing: -0.3px;">Tableau de bord</h1>
+        <p class="text-muted text-sm">Vue d'ensemble du système de gestion des présences</p>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Etudiants</div>
+        <div class="stat-value">{{ total_etudiants }}</div>
+        <div class="stat-sub">comptes inscrits</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Enseignants</div>
+        <div class="stat-value">{{ total_enseignants }}</div>
+        <div class="stat-sub">comptes inscrits</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Modules</div>
+        <div class="stat-value">{{ total_modules }}</div>
+        <div class="stat-sub">au programme</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Séances</div>
+        <div class="stat-value">{{ total_seances }}</div>
+        <div class="stat-sub">enregistrées</div>
+    </div>
+</div>
+
+<div class="grid-halves">
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Séances récentes</span>
+            <span class="badge badge-neutral">{{ recent_seances|length }} dernières</span>
+        </div>
+        {% if recent_seances %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Enseignant</th>
+                        <th>Date</th>
+                        <th>Présences</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in recent_seances %}
+                    <tr>
+                        <td class="fw-600">{{ s.module.code }}</td>
+                        <td class="text-muted">{{ s.enseignant.last_name }}</td>
+                        <td>{{ s.date|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="fw-600">{{ s.presents }}</span>
+                            <span class="text-muted text-sm">/ {{ s.total }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Aucune séance enregistrée pour l'instant.</p></div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Gestion rapide</span></div>
+        <div class="card-body">
+            <p class="text-muted text-sm" style="margin-bottom: 1.25rem;">
+                Accédez aux outils de gestion de la plateforme.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                <a href="{% url 'admin_users' %}" class="btn btn-secondary btn-block">
+                    <i class="fa-solid fa-users"></i> Gérer les utilisateurs
+                </a>
+                <a href="{% url 'admin_modules' %}" class="btn btn-secondary btn-block">
+                    <i class="fa-solid fa-book-open"></i> Gérer les modules
+                </a>
+                <a href="/admin/" target="_blank" class="btn btn-secondary btn-block">
+                    <i class="fa-solid fa-shield-halved"></i> Administration Django
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

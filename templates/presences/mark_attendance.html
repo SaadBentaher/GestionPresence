@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Marquer les présences — {{ seance.module.code }}{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-6">
+    <div>
+        <h1 style="font-size: 1.375rem; font-weight: 700; letter-spacing: -0.3px;">
+            {{ seance.module.code }} — Présences
+        </h1>
+        <p class="text-muted text-sm">
+            {{ seance.date|date:"d/m/Y" }} à {{ seance.heure|time:"H:i" }} &mdash; {{ seance.module.filiere }}
+        </p>
+    </div>
+    <a href="{% url 'dashboard_enseignant' %}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+    <div class="stat-card">
+        <div class="stat-label">Total étudiants</div>
+        <div class="stat-value">{{ presences.count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Présents</div>
+        <div class="stat-value" style="color: var(--success);">{{ present_count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Absents</div>
+        <div class="stat-value" style="color: var(--danger);">{{ absent_count }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Liste des étudiants</span>
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setAll(true)">
+                Tout présent
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setAll(false)">
+                Tout absent
+            </button>
+        </div>
+    </div>
+
+    <form method="post" id="attendance-form">
+        {% csrf_token %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom et Prénom</th>
+                        <th>CNE</th>
+                        <th>Filière</th>
+                        <th style="text-align: center; width: 90px;">Présent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in presences %}
+                    <tr class="attendance-row" onclick="toggleCheck('presence_{{ p.id }}')">
+                        <td class="fw-600">{{ p.etudiant.last_name }} {{ p.etudiant.first_name }}</td>
+                        <td class="text-muted text-sm">{{ p.etudiant.cne|default:"—" }}</td>
+                        <td class="text-muted text-sm">{{ p.etudiant.filiere|default:"—" }}</td>
+                        <td style="text-align: center;" onclick="event.stopPropagation();">
+                            <input type="checkbox"
+                                   name="presence_{{ p.id }}"
+                                   id="presence_{{ p.id }}"
+                                   class="attendance-checkbox"
+                                   {% if p.est_present %}checked{% endif %}>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted" style="padding: 2rem;">
+                            Aucun étudiant inscrit dans cette filière.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <a href="{% url 'dashboard_enseignant' %}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">
+                Enregistrer les présences
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleCheck(id) {
+    const cb = document.getElementById(id);
+    if (cb) cb.checked = !cb.checked;
+}
+function setAll(val) {
+    document.querySelectorAll('.attendance-checkbox').forEach(cb => cb.checked = val);
+}
+</script>
+
+{% endblock %}

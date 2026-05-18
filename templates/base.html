@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PresEMSI{% endblock %} — Gestion des Présences</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+
+{% if user.is_authenticated %}
+
+<aside class="sidebar">
+    <div class="sidebar-brand">PresEMSI</div>
+    <div class="sidebar-section">
+        <div class="sidebar-label">Navigation</div>
+        {% if user.role == 'admin' %}
+            <a href="{% url 'dashboard_admin' %}"
+               class="sidebar-link {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}">
+                <i class="fa-solid fa-gauge-high"></i> Vue d'ensemble
+            </a>
+            <a href="{% url 'admin_users' %}"
+               class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i> Utilisateurs
+            </a>
+            <a href="{% url 'admin_modules' %}"
+               class="sidebar-link {% if request.resolver_match.url_name == 'admin_modules' %}active{% endif %}">
+                <i class="fa-solid fa-book-open"></i> Modules
+            </a>
+            <a href="/admin/" class="sidebar-link" target="_blank">
+                <i class="fa-solid fa-shield-halved"></i> Admin Django
+            </a>
+        {% elif user.role == 'enseignant' %}
+            <a href="{% url 'dashboard_enseignant' %}"
+               class="sidebar-link {% if 'enseignant' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fa-solid fa-calendar-days"></i> Mes Séances
+            </a>
+        {% elif user.role == 'etudiant' %}
+            <a href="{% url 'dashboard_etudiant' %}" class="sidebar-link active">
+                <i class="fa-solid fa-chart-bar"></i> Mes Présences
+            </a>
+        {% endif %}
+    </div>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ user.first_name.0|default:user.username.0|upper }}{{ user.last_name.0|upper }}</div>
+            <div style="min-width: 0;">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-role">{{ user.get_role_display }}</div>
+            </div>
+        </div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="sidebar-logout">Se déconnecter</button>
+        </form>
+    </div>
+</aside>
+
+<div class="main-area">
+    {% if messages %}
+    <div style="padding: 1.5rem 2rem 0;">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mb-4">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="content">
+
+{% else %}
+
+<header class="auth-header">
+    <a href="{% url 'home' %}" class="brand">PresEMSI</a>
+    <nav class="auth-nav">
+        <a href="{% url 'login' %}">Connexion</a>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-sm">S'inscrire</a>
+    </nav>
+</header>
+<main class="auth-main">
+
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% if user.is_authenticated %}
+    </div>
+</div>
+{% else %}
+</main>
+{% endif %}
+
+</body>
+</html>

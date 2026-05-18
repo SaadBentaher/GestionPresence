@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Mes Présences{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-6">
+    <div>
+        <h1 style="font-size: 1.375rem; font-weight: 700; letter-spacing: -0.3px;">Mes Présences</h1>
+        <p class="text-muted text-sm">
+            {{ request.user.get_full_name|default:request.user.username }}{% if request.user.filiere %} &mdash; {{ request.user.filiere }}{% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+    <div class="stat-card">
+        <div class="stat-label">Total séances</div>
+        <div class="stat-value">{{ total }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Présences</div>
+        <div class="stat-value" style="color: var(--success);">{{ present }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Taux global</div>
+        <div class="stat-value" style="color: {% if taux >= 75 %}var(--success){% elif taux >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+            {{ taux }}%
+        </div>
+        <div class="progress" style="margin-top: 0.5rem;">
+            <div class="progress-bar {% if taux >= 75 %}success{% elif taux >= 50 %}warning{% else %}danger{% endif %}"
+                 style="width: {{ taux }}%;"></div>
+        </div>
+    </div>
+</div>
+
+{% if modules_data %}
+<div class="card mb-6">
+    <div class="card-header"><span class="card-title">Récapitulatif par module</span></div>
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Séances</th>
+                    <th>Présent</th>
+                    <th>Taux</th>
+                    <th style="width: 140px;">Progression</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for code, data in modules_data.items %}
+                <tr>
+                    <td>
+                        <div class="fw-600">{{ code }}</div>
+                        <div class="text-muted text-xs">{{ data.intitule }}</div>
+                    </td>
+                    <td>{{ data.total }}</td>
+                    <td>{{ data.present }}</td>
+                    <td>
+                        <span class="badge {% if data.taux >= 75 %}badge-success{% elif data.taux >= 50 %}badge-warning{% else %}badge-danger{% endif %}">
+                            {{ data.taux }}%
+                        </span>
+                    </td>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar {% if data.taux >= 75 %}success{% elif data.taux >= 50 %}warning{% else %}danger{% endif %}"
+                                 style="width: {{ data.taux }}%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Historique complet</span></div>
+    {% if presences %}
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Date</th>
+                    <th>Heure</th>
+                    <th>Enseignant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in presences %}
+                <tr>
+                    <td class="fw-600">{{ p.seance.module.code }}</td>
+                    <td>{{ p.seance.date|date:"d/m/Y" }}</td>
+                    <td class="text-muted text-sm">{{ p.seance.heure|time:"H:i" }}</td>
+                    <td class="text-muted">{{ p.seance.enseignant.get_full_name }}</td>
+                    <td>
+                        {% if p.est_present %}
+                            <span class="badge badge-success">Présent(e)</span>
+                        {% else %}
+                            <span class="badge badge-danger">Absent(e)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>Aucune présence enregistrée pour l'instant.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

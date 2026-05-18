@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<div class="home-wrap">
+    <div class="home-text">
+        <p class="home-eyebrow">EMSI — Gestion des présences</p>
+        <h1>Suivez les présences en temps réel</h1>
+        <p>
+            Plateforme centralisée de gestion des présences aux séances de cours pour les enseignants, étudiants et administrateurs de l'EMSI.
+        </p>
+        <div class="home-actions">
+            <a href="{% url 'login' %}" class="btn btn-primary">Se connecter</a>
+            <a href="{% url 'register' %}" class="btn btn-secondary">Créer un compte</a>
+        </div>
+    </div>
+
+    <div class="home-visual">
+        <p class="home-visual-title">Fonctionnalités</p>
+
+        <div class="home-feature">
+            <div class="feature-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div class="feature-text">
+                <h4>Espace Enseignant</h4>
+                <p>Créez vos séances, marquez les présences et exportez les feuilles en CSV.</p>
+            </div>
+        </div>
+
+        <div class="home-feature">
+            <div class="feature-icon"><i class="fa-solid fa-user-graduate"></i></div>
+            <div class="feature-text">
+                <h4>Espace Étudiant</h4>
+                <p>Consultez votre historique de présences et votre taux par module.</p>
+            </div>
+        </div>
+
+        <div class="home-feature">
+            <div class="feature-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="feature-text">
+                <h4>Tableau de bord Admin</h4>
+                <p>Gérez les utilisateurs, modules et suivez les statistiques globales.</p>
+            </div>
+        </div>
+
+        <div class="home-feature">
+            <div class="feature-icon"><i class="fa-solid fa-file-arrow-down"></i></div>
+            <div class="feature-text">
+                <h4>Export des données</h4>
+                <p>Exportez chaque liste de présences au format CSV compatible Excel.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

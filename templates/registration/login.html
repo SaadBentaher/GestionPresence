@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="card" style="width: 100%; max-width: 380px;">
+    <div class="card-body" style="padding: 2rem;">
+        <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.25rem;">Connexion</h2>
+        <p class="text-muted text-sm" style="margin-bottom: 1.75rem;">Entrez vos identifiants pour accéder à votre espace.</p>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-4">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
+                <input type="text" name="username" id="{{ form.username.id_for_label }}"
+                       class="form-control" placeholder="Votre identifiant" autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="{{ form.password.id_for_label }}">Mot de passe</label>
+                <input type="password" name="password" id="{{ form.password.id_for_label }}"
+                       class="form-control" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.25rem;">
+                Se connecter
+            </button>
+        </form>
+
+        <p class="text-muted text-sm text-center" style="margin-top: 1.5rem;">
+            Pas encore de compte ?
+            <a href="{% url 'register' %}" style="color: var(--primary); font-weight: 500;">S'inscrire</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

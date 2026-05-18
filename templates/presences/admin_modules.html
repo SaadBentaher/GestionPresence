@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Modules{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-6">
+    <div>
+        <h1 style="font-size: 1.375rem; font-weight: 700; letter-spacing: -0.3px;">Modules</h1>
+        <p class="text-muted text-sm">Gestion des modules de formation</p>
+    </div>
+</div>
+
+<div class="grid-2">
+
+    <div class="card" style="align-self: start;">
+        <div class="card-header"><span class="card-title">Ajouter un module</span></div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary btn-block">Ajouter le module</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Modules enregistrés</span>
+            <span class="badge badge-neutral">{{ modules|length }}</span>
+        </div>
+        {% if modules %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Intitulé</th>
+                        <th>Filière</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in modules %}
+                    <tr>
+                        <td class="fw-600">{{ m.code }}</td>
+                        <td>{{ m.intitule }}</td>
+                        <td><span class="badge badge-neutral">{{ m.filiere }}</span></td>
+                        <td style="text-align: right;">
+                            <form method="post" action="{% url 'delete_module' m.id %}"
+                                  onsubmit="return confirm('Supprimer le module « {{ m.code }} » ? Toutes les séances associées seront également supprimées.');"
+                                  style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>Aucun module enregistré pour l'instant.</p></div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
