@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks %}
+{% block title %}Créer un événement{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'club_detail' slug=club.slug %}" class="breadcrumb-link">{{ club.name }}</a>
+<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+<span class="breadcrumb-item">Créer un événement</span>
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <div class="form-page-icon"><i class="fa-solid fa-calendar-plus"></i></div>
+    <div>
+      <h1 class="form-page-title">Créer un événement</h1>
+      <p class="form-page-subtitle">Pour le club <strong>{{ club.name }}</strong></p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="form-sections">
+    {% csrf_token %}
+
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">01</div>
+        <div>
+          <h2 class="form-section-title">Informations générales</h2>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-group">
+          <label class="form-label form-label--required">Titre de l'événement</label>
+          {% render_field form.title class="form-control" placeholder="Ex: Workshop Intelligence Artificielle" %}
+          {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label--required">Description</label>
+          {% render_field form.description class="form-control" rows="6" placeholder="Décrivez l&#39;événement..." %}
+          {% if form.description.errors %}<div class="form-error">{{ form.description.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Type d'événement</label>
+            {% render_field form.event_type class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Statut</label>
+            {% render_field form.status class="form-control" %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">02</div>
+        <div>
+          <h2 class="form-section-title">Date & Lieu</h2>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label--required">Date</label>
+            {% render_field form.date class="form-control" %}
+            {% if form.date.errors %}<div class="form-error">{{ form.date.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required">Heure de début</label>
+            {% render_field form.start_time class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Heure de fin</label>
+            {% render_field form.end_time class="form-control" %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group form-group--wide">
+            <label class="form-label">Lieu</label>
+            {% render_field form.location class="form-control" placeholder="Ex: Amphi A, EMSI Casablanca" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lien Google Maps</label>
+            {% render_field form.location_url class="form-control" placeholder="https://maps.google.com/..." %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">03</div>
+        <div>
+          <h2 class="form-section-title">Inscriptions & Médias</h2>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Capacité maximale</label>
+            {% render_field form.capacity class="form-control" %}
+            <div class="form-hint">0 = illimité</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date limite d'inscription</label>
+            {% render_field form.registration_deadline class="form-control" %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image de couverture</label>
+          {% render_field form.cover_image class="form-control" %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mots-clés</label>
+          {% render_field form.tags class="form-control" placeholder="workshop, IA, coding ..." %}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-submit">
+      <a href="{% url 'club_detail' slug=club.slug %}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i> Créer l'événement
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

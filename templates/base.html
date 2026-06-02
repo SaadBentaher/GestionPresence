@@ -2,98 +2,212 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PresEMSI{% endblock %} — Gestion des Présences</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ClubHub{% endblock %} — Plateforme des Clubs Étudiants</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/clubs.css' %}">
+  {% block extra_head %}{% endblock %}
+  <script>
+    (function(){
+      var t = localStorage.getItem('clubhub-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </head>
-<body>
-
+<body class="{% block body_class %}{% endblock %}">
 
 {% if user.is_authenticated %}
+<!-- ═══════════════════════════ AUTHENTICATED LAYOUT ═══════════════════════════ -->
 
-<aside class="sidebar">
-    <div class="sidebar-brand">PresEMSI</div>
-    <div class="sidebar-section">
-        <div class="sidebar-label">Navigation</div>
-        {% if user.role == 'admin' %}
-            <a href="{% url 'dashboard_admin' %}"
-               class="sidebar-link {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}">
-                <i class="fa-solid fa-gauge-high"></i> Vue d'ensemble
-            </a>
-            <a href="{% url 'admin_users' %}"
-               class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
-                <i class="fa-solid fa-users"></i> Utilisateurs
-            </a>
-            <a href="{% url 'admin_modules' %}"
-               class="sidebar-link {% if request.resolver_match.url_name == 'admin_modules' %}active{% endif %}">
-                <i class="fa-solid fa-book-open"></i> Modules
-            </a>
-            <a href="/admin/" class="sidebar-link" target="_blank">
-                <i class="fa-solid fa-shield-halved"></i> Admin Django
-            </a>
-        {% elif user.role == 'enseignant' %}
-            <a href="{% url 'dashboard_enseignant' %}"
-               class="sidebar-link {% if 'enseignant' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fa-solid fa-calendar-days"></i> Mes Séances
-            </a>
-        {% elif user.role == 'etudiant' %}
-            <a href="{% url 'dashboard_etudiant' %}" class="sidebar-link active">
-                <i class="fa-solid fa-chart-bar"></i> Mes Présences
-            </a>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <a href="{% url 'club_list' %}" class="brand-link">
+      <div class="brand-icon"><i class="fa-solid fa-star-of-life"></i></div>
+      <span class="brand-name">ClubHub</span>
+    </a>
+    <button class="sidebar-toggle-mobile" id="sidebarClose">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-search">
+    <form action="{% url 'club_list' %}" method="get">
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" placeholder="Rechercher..." class="sidebar-search-input">
+      </div>
+    </form>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+
+    <a href="{% url 'club_list' %}"
+       class="sidebar-link {% if request.resolver_match.url_name == 'club_list' %}active{% endif %}">
+      <i class="fa-solid fa-compass"></i>
+      <span>Découvrir les clubs</span>
+    </a>
+
+    <a href="{% url 'event_list' %}"
+       class="sidebar-link {% if 'event' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Événements</span>
+    </a>
+
+    <a href="{% url 'notification_list' %}"
+       class="sidebar-link {% if request.resolver_match.url_name == 'notification_list' %}active{% endif %}">
+      <i class="fa-solid fa-bell"></i>
+      <span>Notifications</span>
+      {% if unread_notif_count %}<span class="sidebar-badge" id="notif-badge">{{ unread_notif_count }}</span>{% endif %}
+    </a>
+
+    {% if user.role == 'etudiant' or user.role == 'club_manager' %}
+    <div class="sidebar-section-label">Mes Activités</div>
+    <a href="{% url 'profile' %}"
+       class="sidebar-link {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-user"></i>
+      <span>Mon Profil</span>
+    </a>
+    {% endif %}
+
+    {% if user.role == 'admin' or user.role == 'club_manager' %}
+    <div class="sidebar-section-label">Gestion</div>
+    <a href="{% url 'club_create' %}"
+       class="sidebar-link {% if request.resolver_match.url_name == 'club_create' %}active{% endif %}">
+      <i class="fa-solid fa-plus-circle"></i>
+      <span>Créer un club</span>
+    </a>
+    {% endif %}
+
+    {% if user.role == 'admin' %}
+    <div class="sidebar-section-label">Administration</div>
+    <a href="{% url 'admin_clubs' %}"
+       class="sidebar-link {% if 'admin_club' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>Valider les clubs</span>
+      {% with count=pending_clubs_count %}
+      {% if count %}<span class="sidebar-badge sidebar-badge--warning">{{ count }}</span>{% endif %}
+      {% endwith %}
+    </a>
+    <a href="{% url 'dashboard_admin' %}"
+       class="sidebar-link {% if 'dashboard_admin' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span>Tableau de bord</span>
+    </a>
+    <a href="{% url 'admin_users' %}" class="sidebar-link">
+      <i class="fa-solid fa-users-gear"></i>
+      <span>Utilisateurs</span>
+    </a>
+    <a href="/admin/" class="sidebar-link" target="_blank">
+      <i class="fa-solid fa-screwdriver-wrench"></i>
+      <span>Admin Django</span>
+      <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:auto;opacity:.5"></i>
+    </a>
+    {% endif %}
+
+    {% if user.role == 'enseignant' %}
+    <div class="sidebar-section-label">Présences</div>
+    <a href="{% url 'dashboard_enseignant' %}" class="sidebar-link">
+      <i class="fa-solid fa-calendar-check"></i>
+      <span>Mes séances</span>
+    </a>
+    {% endif %}
+
+    {% if user.role == 'etudiant' %}
+    <a href="{% url 'dashboard_etudiant' %}" class="sidebar-link">
+      <i class="fa-solid fa-chart-bar"></i>
+      <span>Mes présences</span>
+    </a>
+    {% endif %}
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar-sm">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        {% else %}
+          {{ user.get_initials }}
         {% endif %}
+      </div>
+      <div class="user-meta">
+        <div class="user-name-sm">{{ user.get_full_name|default:user.username }}</div>
+        <div class="user-role-sm">{{ user.get_role_display }}</div>
+      </div>
     </div>
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="user-avatar">{{ user.first_name.0|default:user.username.0|upper }}{{ user.last_name.0|upper }}</div>
-            <div style="min-width: 0;">
-                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
-                <div class="user-role">{{ user.get_role_display }}</div>
-            </div>
-        </div>
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="sidebar-logout">Se déconnecter</button>
-        </form>
+    <div class="sidebar-footer-actions">
+      <a href="{% url 'profile' %}" class="sidebar-action-btn" title="Profil">
+        <i class="fa-solid fa-user"></i>
+      </a>
+      <button class="sidebar-action-btn theme-toggle" id="themeToggle" title="Changer le thème">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+      <form method="post" action="{% url 'logout' %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="sidebar-action-btn sidebar-action-btn--danger" title="Déconnexion">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </form>
     </div>
+  </div>
 </aside>
 
 <div class="main-area">
+  <header class="topbar">
+    <button class="topbar-menu-btn" id="sidebarToggle">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="topbar-breadcrumb">
+      {% block breadcrumb %}{% endblock %}
+    </div>
+    <div class="topbar-actions">
+      <a href="{% url 'notification_list' %}" class="topbar-icon-btn" id="notif-btn">
+        <i class="fa-solid fa-bell"></i>
+        <span class="notif-dot" id="notif-dot" style="display:none"></span>
+      </a>
+      <a href="{% url 'profile' %}" class="topbar-avatar">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="">
+        {% else %}
+          {{ user.get_initials }}
+        {% endif %}
+      </a>
+    </div>
+  </header>
+
+  <main class="page-content">
     {% if messages %}
-    <div style="padding: 1.5rem 2rem 0;">
-        {% for message in messages %}
-        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mb-4">
-            {{ message }}
-        </div>
-        {% endfor %}
+    <div class="messages-container">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+        <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' or message.tags == 'danger' %}fa-circle-xmark{% elif message.tags == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+        {{ message }}
+        <button class="alert-close" onclick="this.parentElement.remove()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      {% endfor %}
     </div>
     {% endif %}
-    <div class="content">
 
-{% else %}
-
-<header class="auth-header">
-    <a href="{% url 'home' %}" class="brand">PresEMSI</a>
-    <nav class="auth-nav">
-        <a href="{% url 'login' %}">Connexion</a>
-        <a href="{% url 'register' %}" class="btn btn-primary btn-sm">S'inscrire</a>
-    </nav>
-</header>
-<main class="auth-main">
-
-{% endif %}
-
-{% block content %}{% endblock %}
-
-{% if user.is_authenticated %}
-    </div>
+    {% block content %}{% endblock %}
+  </main>
 </div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 {% else %}
-</main>
+<!-- ═══════════════════════════ PUBLIC LAYOUT ═══════════════════════════ -->
+<div class="public-layout">
+  {% block public_content %}{% endblock %}
+</div>
 {% endif %}
 
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Mon Profil{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Mon Profil</span>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+  <!-- Profile header -->
+  <div class="profile-header-card">
+    <div class="profile-avatar-wrap">
+      {% if user.avatar %}
+      <img src="{{ user.avatar.url }}" alt="" class="profile-avatar">
+      {% else %}
+      <div class="profile-avatar-placeholder">{{ user.get_initials }}</div>
+      {% endif %}
+    </div>
+    <div class="profile-header-info">
+      <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+      <div class="profile-role-badge">{{ user.get_role_display }}</div>
+      {% if user.bio %}
+      <p class="profile-bio">{{ user.bio }}</p>
+      {% endif %}
+      <div class="profile-meta">
+        {% if user.university %}
+        <span><i class="fa-solid fa-building-columns"></i> {{ user.university }}</span>
+        {% endif %}
+        {% if user.filiere %}
+        <span><i class="fa-solid fa-graduation-cap"></i> {{ user.filiere }}</span>
+        {% endif %}
+        {% if user.email %}
+        <span><i class="fa-solid fa-envelope"></i> {{ user.email }}</span>
+        {% endif %}
+        {% if user.phone %}
+        <span><i class="fa-solid fa-phone"></i> {{ user.phone }}</span>
+        {% endif %}
+      </div>
+      <div class="profile-links">
+        {% if user.website %}
+        <a href="{{ user.website }}" target="_blank" class="profile-link">
+          <i class="fa-solid fa-globe"></i>
+        </a>
+        {% endif %}
+        {% if user.linkedin %}
+        <a href="{{ user.linkedin }}" target="_blank" class="profile-link profile-link--linkedin">
+          <i class="fa-brands fa-linkedin"></i>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    <a href="{% url 'profile_edit' %}" class="btn btn-secondary">
+      <i class="fa-solid fa-pen"></i> Modifier le profil
+    </a>
+  </div>
+
+  <div class="profile-grid">
+
+    <!-- My clubs -->
+    <div>
+      <h2 class="profile-section-title">
+        <i class="fa-solid fa-users"></i> Mes clubs ({{ memberships.count }})
+      </h2>
+      {% if memberships %}
+      <div class="profile-clubs-grid">
+        {% for m in memberships %}
+        <a href="{% url 'club_detail' slug=m.club.slug %}" class="profile-club-card">
+          <div class="pclub-logo">
+            {% if m.club.logo %}
+            <img src="{{ m.club.logo.url }}" alt="">
+            {% else %}
+            {{ m.club.name.0 }}
+            {% endif %}
+          </div>
+          <div class="pclub-info">
+            <div class="pclub-name">{{ m.club.name }}</div>
+            <div class="pclub-role">{{ m.get_role_display }}</div>
+          </div>
+          <span class="badge {% if m.role == 'owner' %}badge-info{% elif m.role == 'manager' %}badge-warning{% else %}badge-neutral{% endif %}">
+            {{ m.get_role_display }}
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <p>Vous n'avez rejoint aucun club pour le moment.</p>
+        <a href="{% url 'club_list' %}" class="btn btn-primary btn-sm mt-4">
+          <i class="fa-solid fa-compass"></i> Découvrir les clubs
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Upcoming events -->
+    <div>
+      <h2 class="profile-section-title">
+        <i class="fa-solid fa-calendar-days"></i> Mes prochains événements
+      </h2>
+      {% if upcoming_regs %}
+      {% for reg in upcoming_regs %}
+      <a href="{% url 'event_detail' pk=reg.event.pk %}" class="profile-event-row">
+        <div class="per-date">
+          <span class="per-day">{{ reg.event.date|date:"d" }}</span>
+          <span class="per-month">{{ reg.event.date|date:"M" }}</span>
+        </div>
+        <div class="per-info">
+          <div class="per-title">{{ reg.event.title }}</div>
+          <div class="per-club">{{ reg.event.club.name }}</div>
+        </div>
+        <span class="badge badge-success">Inscrit</span>
+      </a>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <p>Aucun événement à venir.</p>
+        <a href="{% url 'event_list' %}" class="btn btn-secondary btn-sm mt-4">
+          Voir les événements
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

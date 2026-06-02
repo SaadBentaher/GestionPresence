@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Clubs{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Clubs</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Explorer les clubs</h1>
+    <p class="page-subtitle">{{ total_clubs }} club{{ total_clubs|pluralize }} disponible{{ total_clubs|pluralize }} sur la plateforme</p>
+  </div>
+  {% if user.role in 'admin,club_manager' %}
+  <a href="{% url 'club_create' %}" class="btn btn-primary">
+    <i class="fa-solid fa-plus"></i> Créer un club
+  </a>
+  {% endif %}
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <form method="get" class="filter-form" id="filterForm">
+    <div class="filter-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" name="q" value="{{ q }}" placeholder="Rechercher un club..." class="filter-input" id="searchInput">
+    </div>
+    <div class="filter-group">
+      <select name="sort" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+        <option value="featured" {% if sort == 'featured' %}selected{% endif %}>En vedette</option>
+        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Plus récents</option>
+        <option value="members" {% if sort == 'members' %}selected{% endif %}>Plus de membres</option>
+        <option value="name" {% if sort == 'name' %}selected{% endif %}>Alphabétique</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-secondary btn-sm">
+      <i class="fa-solid fa-filter"></i> Filtrer
+    </button>
+  </form>
+</div>
+
+<!-- Category pills -->
+{% if categories %}
+<div class="category-pills">
+  <a href="{% url 'club_list' %}{% if q %}?q={{ q }}{% endif %}"
+     class="cat-pill {% if not current_category %}cat-pill--active{% endif %}">
+    Tous
+  </a>
+  {% for cat in categories %}
+  <a href="?category={{ cat.slug }}{% if q %}&q={{ q }}{% endif %}"
+     class="cat-pill {% if current_category == cat.slug %}cat-pill--active{% endif %}"
+     style="{% if current_category == cat.slug %}background:{{ cat.color }}20;border-color:{{ cat.color }};color:{{ cat.color }}{% endif %}">
+    <i class="fa-solid {{ cat.icon }}" style="{% if current_category != cat.slug %}color:{{ cat.color }}{% endif %}"></i>
+    {{ cat.name }}
+    <span class="cat-pill-count">{{ cat.club_count }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Club grid -->
+{% if clubs %}
+<div class="clubs-grid">
+  {% for club in clubs %}
+  <div class="club-card">
+    <a href="{% url 'club_detail' slug=club.slug %}" class="club-card-link">
+      <div class="club-card-banner">
+        {% if club.banner %}
+        <img src="{{ club.banner.url }}" alt="">
+        {% else %}
+        <div class="club-card-banner-placeholder"
+             style="background: linear-gradient(135deg,
+               {{ club.category.color|default:'#6366F1' }}30 0%,
+               {{ club.category.color|default:'#8B5CF6' }}15 100%)">
+          <i class="fa-solid {{ club.category.icon|default:'fa-users' }}"
+             style="color: {{ club.category.color|default:'#6366F1' }}50; font-size: 3rem;"></i>
+        </div>
+        {% endif %}
+        {% if club.is_featured %}
+        <div class="club-card-featured-badge">
+          <i class="fa-solid fa-star"></i> Vedette
+        </div>
+        {% endif %}
+      </div>
+      <div class="club-card-body">
+        <div class="club-card-logo-row">
+          <div class="club-logo-sm">
+            {% if club.logo %}
+            <img src="{{ club.logo.url }}" alt="{{ club.name }}">
+            {% else %}
+            <span>{{ club.name.0 }}</span>
+            {% endif %}
+          </div>
+          {% if club.category %}
+          <span class="club-card-category" style="color: {{ club.category.color|default:'#6366F1' }}">
+            {{ club.category.name }}
+          </span>
+          {% endif %}
+        </div>
+        <h3 class="club-card-name">{{ club.name }}</h3>
+        <p class="club-card-desc">
+          {{ club.short_description|default:club.description|truncatechars:120 }}
+        </p>
+        <div class="club-card-footer">
+          <div class="club-card-members">
+            <i class="fa-solid fa-users"></i>
+            {{ club.member_count_ann }} membre{{ club.member_count_ann|pluralize }}
+          </div>
+          {% if club.id in user_memberships %}
+            <span class="club-card-status club-card-status--joined">
+              <i class="fa-solid fa-circle-check"></i> Membre
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </a>
+    <div class="club-card-actions">
+      <a href="{% url 'club_detail' slug=club.slug %}" class="btn btn-sm btn-secondary">
+        Voir le club
+      </a>
+      {% if user.is_authenticated %}
+      {% if club.id in user_memberships %}
+        <span class="badge badge-success">Membre</span>
+      {% else %}
+      <a href="{% url 'join_club' slug=club.slug %}" class="btn btn-sm btn-primary">
+        Rejoindre
+      </a>
+      {% endif %}
+      {% else %}
+      <a href="{% url 'login' %}" class="btn btn-sm btn-primary">Rejoindre</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state empty-state--large">
+  <div class="empty-icon"><i class="fa-solid fa-compass"></i></div>
+  <h3 class="empty-title">Aucun club trouvé</h3>
+  <p class="empty-desc">
+    {% if q %}Aucun résultat pour "{{ q }}". Essayez avec d'autres mots-clés.
+    {% elif current_category %}Aucun club dans cette catégorie pour le moment.
+    {% else %}Soyez le premier à créer un club sur la plateforme !{% endif %}
+  </p>
+  {% if user.is_authenticated %}
+  <a href="{% url 'club_create' %}" class="btn btn-primary">
+    <i class="fa-solid fa-plus"></i> Créer un club
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

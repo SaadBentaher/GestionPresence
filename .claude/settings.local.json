@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv\\\\Scripts\\\\python.exe -m pip install Pillow django-widget-tweaks)",
+      "Bash(python -m pip install Pillow django-widget-tweaks)"
+    ]
+  }
+}

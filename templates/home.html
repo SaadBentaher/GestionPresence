@@ -1,53 +1,268 @@
-{% extends 'base.html' %}
-{% block title %}Accueil{% endblock %}
-{% block content %}
-<div class="home-wrap">
-    <div class="home-text">
-        <p class="home-eyebrow">EMSI — Gestion des présences</p>
-        <h1>Suivez les présences en temps réel</h1>
-        <p>
-            Plateforme centralisée de gestion des présences aux séances de cours pour les enseignants, étudiants et administrateurs de l'EMSI.
-        </p>
-        <div class="home-actions">
-            <a href="{% url 'login' %}" class="btn btn-primary">Se connecter</a>
-            <a href="{% url 'register' %}" class="btn btn-secondary">Créer un compte</a>
-        </div>
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClubHub — Plateforme des Clubs Étudiants EMSI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/clubs.css' %}">
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body class="landing-body">
+
+<nav class="landing-nav" id="landing-nav">
+  <div class="nav-container">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon"><i class="fa-solid fa-star-of-life"></i></div>
+      <span>ClubHub</span>
+    </a>
+    <div class="nav-links">
+      <a href="{% url 'club_list' %}" class="nav-link">Explorer</a>
+      <a href="{% url 'event_list' %}" class="nav-link">Événements</a>
     </div>
-
-    <div class="home-visual">
-        <p class="home-visual-title">Fonctionnalités</p>
-
-        <div class="home-feature">
-            <div class="feature-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
-            <div class="feature-text">
-                <h4>Espace Enseignant</h4>
-                <p>Créez vos séances, marquez les présences et exportez les feuilles en CSV.</p>
-            </div>
-        </div>
-
-        <div class="home-feature">
-            <div class="feature-icon"><i class="fa-solid fa-user-graduate"></i></div>
-            <div class="feature-text">
-                <h4>Espace Étudiant</h4>
-                <p>Consultez votre historique de présences et votre taux par module.</p>
-            </div>
-        </div>
-
-        <div class="home-feature">
-            <div class="feature-icon"><i class="fa-solid fa-gauge-high"></i></div>
-            <div class="feature-text">
-                <h4>Tableau de bord Admin</h4>
-                <p>Gérez les utilisateurs, modules et suivez les statistiques globales.</p>
-            </div>
-        </div>
-
-        <div class="home-feature">
-            <div class="feature-icon"><i class="fa-solid fa-file-arrow-down"></i></div>
-            <div class="feature-text">
-                <h4>Export des données</h4>
-                <p>Exportez chaque liste de présences au format CSV compatible Excel.</p>
-            </div>
-        </div>
+    <div class="nav-actions">
+      <a href="{% url 'login' %}" class="nav-btn-ghost">Connexion</a>
+      <a href="{% url 'register' %}" class="nav-btn-primary">S'inscrire gratuitement</a>
     </div>
-</div>
-{% endblock %}
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-orb hero-orb--1"></div>
+    <div class="hero-orb hero-orb--2"></div>
+    <div class="hero-orb hero-orb--3"></div>
+    <div class="hero-grid"></div>
+  </div>
+  <div class="hero-container">
+    <div class="hero-badge">
+      <i class="fa-solid fa-sparkles"></i>
+      Plateforme officielle EMSI
+    </div>
+    <h1 class="hero-title">
+      Découvrez votre<br>
+      <span class="hero-title-accent">communauté étudiante</span>
+    </h1>
+    <p class="hero-subtitle">
+      Rejoignez des clubs passionnants, participez à des événements inoubliables
+      et construisez votre réseau universitaire.
+    </p>
+    <div class="hero-cta">
+      <a href="{% url 'register' %}" class="cta-primary">
+        <i class="fa-solid fa-rocket"></i>
+        Commencer maintenant
+      </a>
+      <a href="{% url 'club_list' %}" class="cta-secondary">
+        <i class="fa-solid fa-compass"></i>
+        Explorer les clubs
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ stats.clubs }}</span>
+        <span class="hero-stat-label">Clubs actifs</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ stats.members }}</span>
+        <span class="hero-stat-label">Membres</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ stats.events }}</span>
+        <span class="hero-stat-label">Événements</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if categories %}
+<section class="section section--light">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">Catégories</div>
+      <h2 class="section-title">Un club pour chaque passion</h2>
+      <p class="section-subtitle">Des domaines variés pour tous les centres d'intérêt</p>
+    </div>
+    <div class="categories-grid">
+      {% for cat in categories %}
+      <a href="{% url 'club_list' %}?category={{ cat.slug }}" class="category-card">
+        <div class="category-icon" style="background: {{ cat.color }}20; color: {{ cat.color }}">
+          <i class="fa-solid {{ cat.icon }}"></i>
+        </div>
+        <div class="category-name">{{ cat.name }}</div>
+        <div class="category-count">{{ cat.club_count }} club{{ cat.club_count|pluralize }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if featured_clubs %}
+<section class="section section--dark">
+  <div class="section-container">
+    <div class="section-header section-header--light">
+      <div class="section-badge section-badge--dark">À la une</div>
+      <h2 class="section-title section-title--light">Clubs en vedette</h2>
+      <p class="section-subtitle section-subtitle--light">Les clubs les plus actifs de la plateforme</p>
+    </div>
+    <div class="featured-clubs-grid">
+      {% for club in featured_clubs %}
+      <a href="{% url 'club_detail' slug=club.slug %}" class="featured-club-card">
+        <div class="fclub-banner">
+          {% if club.banner %}
+          <img src="{{ club.banner.url }}" alt="">
+          {% else %}
+          <div class="fclub-banner-placeholder"></div>
+          {% endif %}
+        </div>
+        <div class="fclub-body">
+          <div class="fclub-logo-wrap">
+            {% if club.logo %}
+            <img src="{{ club.logo.url }}" alt="{{ club.name }}" class="fclub-logo">
+            {% else %}
+            <div class="fclub-logo-placeholder">{{ club.name.0 }}</div>
+            {% endif %}
+          </div>
+          {% if club.category %}
+          <div class="fclub-category">{{ club.category.name }}</div>
+          {% endif %}
+          <h3 class="fclub-name">{{ club.name }}</h3>
+          <p class="fclub-desc">{{ club.short_description|default:club.description|truncatechars:100 }}</p>
+          <div class="fclub-footer">
+            <div class="fclub-members">
+              <i class="fa-solid fa-users"></i>
+              {{ club.member_count }} membre{{ club.member_count|pluralize }}
+            </div>
+            <div class="fclub-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="section-cta">
+      <a href="{% url 'club_list' %}" class="btn-outline-light">
+        Voir tous les clubs <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if upcoming_events %}
+<section class="section section--light">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">Agenda</div>
+      <h2 class="section-title">Événements à venir</h2>
+      <p class="section-subtitle">Ne manquez aucune activité de votre campus</p>
+    </div>
+    <div class="events-list-preview">
+      {% for event in upcoming_events %}
+      <a href="{% url 'event_detail' pk=event.pk %}" class="event-preview-card">
+        <div class="epcard-date">
+          <span class="epcard-day">{{ event.date|date:"d" }}</span>
+          <span class="epcard-month">{{ event.date|date:"M" }}</span>
+        </div>
+        <div class="epcard-body">
+          <div class="epcard-club">{{ event.club.name }}</div>
+          <div class="epcard-title">{{ event.title }}</div>
+          <div class="epcard-meta">
+            {% if event.location %}<span><i class="fa-solid fa-location-dot"></i> {{ event.location }}</span>{% endif %}
+            <span><i class="fa-solid fa-clock"></i> {{ event.start_time|time:"H:i" }}</span>
+          </div>
+        </div>
+        <div class="epcard-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="section-cta">
+      <a href="{% url 'event_list' %}" class="btn-outline-dark">
+        Tous les événements <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section--gradient">
+  <div class="section-container">
+    <div class="section-header section-header--light">
+      <div class="section-badge section-badge--glass">Comment ça marche</div>
+      <h2 class="section-title section-title--light">Simple, rapide, efficace</h2>
+    </div>
+    <div class="how-it-works-grid">
+      <div class="hiw-step">
+        <div class="hiw-step-num">01</div>
+        <div class="hiw-icon"><i class="fa-solid fa-user-plus"></i></div>
+        <h3 class="hiw-title">Créez votre compte</h3>
+        <p class="hiw-desc">Inscrivez-vous en quelques secondes et complétez votre profil étudiant.</p>
+      </div>
+      <div class="hiw-connector"></div>
+      <div class="hiw-step">
+        <div class="hiw-step-num">02</div>
+        <div class="hiw-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h3 class="hiw-title">Explorez et rejoignez</h3>
+        <p class="hiw-desc">Parcourez les clubs et envoyez votre demande d'adhésion.</p>
+      </div>
+      <div class="hiw-connector"></div>
+      <div class="hiw-step">
+        <div class="hiw-step-num">03</div>
+        <div class="hiw-icon"><i class="fa-solid fa-calendar-star"></i></div>
+        <h3 class="hiw-title">Participez et créez</h3>
+        <p class="hiw-desc">Assistez aux événements et créez des expériences mémorables.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="cta-banner-container">
+    <div class="cta-banner-content">
+      <h2 class="cta-banner-title">Prêt à rejoindre la communauté ?</h2>
+      <p class="cta-banner-subtitle">Plus de {{ stats.members }} étudiants font déjà partie de ClubHub.</p>
+      <div class="cta-banner-actions">
+        <a href="{% url 'register' %}" class="cta-banner-btn-primary">
+          <i class="fa-solid fa-rocket"></i> Créer mon compte
+        </a>
+        <a href="{% url 'login' %}" class="cta-banner-btn-ghost">J'ai déjà un compte</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="landing-footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <div class="footer-brand-icon"><i class="fa-solid fa-star-of-life"></i></div>
+      <span class="footer-brand-name">ClubHub</span>
+      <p class="footer-tagline">La plateforme officielle des clubs étudiants EMSI.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <div class="footer-col-title">Plateforme</div>
+        <a href="{% url 'club_list' %}">Clubs</a>
+        <a href="{% url 'event_list' %}">Événements</a>
+        <a href="{% url 'register' %}">S'inscrire</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Compte</div>
+        <a href="{% url 'login' %}">Connexion</a>
+        <a href="{% url 'register' %}">Inscription</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 ClubHub — EMSI. Tous droits réservés.</span>
+    <span>Fait avec <i class="fa-solid fa-heart" style="color:#EF4444"></i> pour les étudiants</span>
+  </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

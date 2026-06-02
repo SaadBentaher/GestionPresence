@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Validation des clubs{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Administration — Clubs</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Validation des clubs</h1>
+    <p class="page-subtitle">Gérez les demandes de création de clubs</p>
+  </div>
+</div>
+
+<!-- Status tabs -->
+<div class="tab-nav">
+  <a href="?status=pending" class="tab-link {% if status_filter == 'pending' %}active{% endif %}">
+    En attente
+    {% if counts.pending %}<span class="tab-badge">{{ counts.pending }}</span>{% endif %}
+  </a>
+  <a href="?status=approved" class="tab-link {% if status_filter == 'approved' %}active{% endif %}">
+    Approuvés <span class="tab-badge tab-badge--green">{{ counts.approved }}</span>
+  </a>
+  <a href="?status=rejected" class="tab-link {% if status_filter == 'rejected' %}active{% endif %}">
+    Refusés <span class="tab-badge tab-badge--red">{{ counts.rejected }}</span>
+  </a>
+  <a href="?status=suspended" class="tab-link {% if status_filter == 'suspended' %}active{% endif %}">
+    Suspendus
+  </a>
+</div>
+
+{% if clubs %}
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Club</th>
+            <th>Catégorie</th>
+            <th>Créé par</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for club in clubs %}
+          <tr>
+            <td>
+              <div class="table-user-cell">
+                <div class="club-list-logo">
+                  {% if club.logo %}
+                  <img src="{{ club.logo.url }}" alt="">
+                  {% else %}
+                  {{ club.name.0 }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="table-user-name">{{ club.name }}</div>
+                  <div class="table-user-sub">{{ club.description|truncatechars:60 }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ club.category.name|default:"—" }}</td>
+            <td>{{ club.created_by.get_full_name|default:club.created_by.username }}</td>
+            <td class="text-sm text-muted">{{ club.created_at|date:"d M Y" }}</td>
+            <td>
+              <a href="{% url 'admin_review_club' pk=club.pk %}" class="btn btn-sm btn-secondary">
+                <i class="fa-solid fa-eye"></i> Examiner
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="empty-state empty-state--large">
+  <div class="empty-icon"><i class="fa-solid fa-check-circle"></i></div>
+  <h3 class="empty-title">Aucun club dans cette catégorie</h3>
+  <p class="empty-desc">Il n'y a aucun club avec ce statut pour le moment.</p>
+</div>
+{% endif %}
+{% endblock %}

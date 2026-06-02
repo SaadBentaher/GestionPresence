@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Nouvelle annonce — {{ club.name }}{% endblock %}
+
+{% block content %}
+<div class="form-page form-page--narrow">
+  <div class="form-page-header">
+    <div class="form-page-icon"><i class="fa-solid fa-bullhorn"></i></div>
+    <div>
+      <h1 class="form-page-title">Publier une annonce</h1>
+      <p class="form-page-subtitle">Pour les membres de {{ club.name }}</p>
+    </div>
+  </div>
+  <form method="post" class="form-sections">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-body">
+        <div class="form-group">
+          <label class="form-label form-label--required">Titre</label>
+          {% render_field form.title class="form-control" placeholder="Titre de l&#39;annonce..." %}
+          {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Contenu</label>
+          {% render_field form.content class="form-control" rows="8" placeholder="Rédigez votre annonce..." %}
+          {% if form.content.errors %}<div class="form-error">{{ form.content.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group form-group--check">
+          <label class="form-check-label">
+            {% render_field form.is_pinned %}
+            <span>Épingler cette annonce en haut</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-submit">
+      <a href="{% url 'club_manage' slug=club.slug %}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-bullhorn"></i> Publier l'annonce
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Quitter — {{ club.name }}{% endblock %}
+
+{% block content %}
+<div class="form-page form-page--narrow">
+  <div class="confirm-card confirm-card--danger">
+    <div class="confirm-icon"><i class="fa-solid fa-door-open"></i></div>
+    <h2 class="confirm-title">Quitter {{ club.name }} ?</h2>
+    <p class="confirm-desc">Vous perdrez l'accès aux ressources membres et devrez faire une nouvelle demande pour réintégrer le club.</p>
+    <div class="confirm-actions">
+      <a href="{% url 'club_detail' slug=club.slug %}" class="btn btn-secondary">Annuler</a>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+          <i class="fa-solid fa-right-from-bracket"></i> Confirmer et quitter
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

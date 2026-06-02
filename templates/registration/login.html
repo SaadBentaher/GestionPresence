@@ -1,38 +1,82 @@
-{% extends 'base.html' %}
-{% block title %}Connexion{% endblock %}
-{% block content %}
-<div class="card" style="width: 100%; max-width: 380px;">
-    <div class="card-body" style="padding: 2rem;">
-        <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.25rem;">Connexion</h2>
-        <p class="text-muted text-sm" style="margin-bottom: 1.75rem;">Entrez vos identifiants pour accéder à votre espace.</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — ClubHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/clubs.css' %}">
+  <script>(function(){var t=localStorage.getItem('clubhub-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <style>
+    :root { --primary:#6366F1; --auth-bg:#F1F5F9; --auth-card:#fff; --auth-border:#E2E8F0; --auth-text:#0F172A; --auth-muted:#64748B; --auth-input-bg:#F8FAFC; --auth-label:#374151; }
+    [data-theme="dark"] { --auth-bg:#0D1117; --auth-card:#161B22; --auth-border:#30363D; --auth-text:#E6EDF3; --auth-muted:#8B949E; --auth-input-bg:#1C2128; --auth-label:#9CA3AF; }
+    body { margin:0; background:var(--auth-bg); color:var(--auth-text); display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'Inter',sans-serif; transition:background .2s; }
+    .auth-wrapper { width:100%; max-width:420px; padding:1.5rem; }
+    .auth-brand { text-align:center; margin-bottom:2rem; }
+    .auth-brand-icon { width:52px; height:52px; background:var(--primary); border-radius:14px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:1.4rem; margin-bottom:.75rem; }
+    .auth-brand-name { font-size:1.5rem; font-weight:800; color:var(--auth-text); }
+    .auth-card { background:var(--auth-card); border:1px solid var(--auth-border); border-radius:20px; padding:2.25rem 2rem; box-shadow:0 4px 24px rgba(0,0,0,.12); transition:background .2s,border-color .2s; }
+    .auth-title { font-size:1.25rem; font-weight:700; color:var(--auth-text); margin:0 0 .25rem; }
+    .auth-sub { font-size:.875rem; color:var(--auth-muted); margin:0 0 1.75rem; }
+    .form-group { margin-bottom:1.1rem; }
+    .form-label { display:block; font-size:.8rem; font-weight:600; color:var(--auth-label); margin-bottom:.4rem; letter-spacing:.02em; text-transform:uppercase; }
+    .form-control { width:100%; padding:.65rem .85rem; border:1.5px solid var(--auth-border); border-radius:10px; font-size:.925rem; font-family:inherit; color:var(--auth-text); background:var(--auth-input-bg); outline:none; box-sizing:border-box; transition:border-color .2s,box-shadow .2s,background .2s; }
+    .form-control:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+    .btn-auth { width:100%; padding:.75rem; background:var(--primary); color:#fff; border:none; border-radius:10px; font-size:.95rem; font-weight:600; font-family:inherit; cursor:pointer; margin-top:.5rem; transition:background .2s,transform .1s; }
+    .btn-auth:hover { background:#4F46E5; }
+    .btn-auth:active { transform:scale(.98); }
+    .auth-footer { text-align:center; margin-top:1.5rem; font-size:.875rem; color:var(--auth-muted); }
+    .auth-footer a { color:var(--primary); font-weight:600; text-decoration:none; }
+    .auth-footer a:hover { text-decoration:underline; }
+    .alert { padding:.75rem 1rem; border-radius:10px; margin-bottom:1rem; font-size:.875rem; background:rgba(239,68,68,.1); color:#FCA5A5; border:1px solid rgba(239,68,68,.25); }
+    [data-theme="light"] .alert { background:#FEF2F2; color:#B91C1C; border-color:#FECACA; }
+    .back-home { display:inline-flex; align-items:center; gap:.4rem; font-size:.825rem; color:var(--auth-muted); text-decoration:none; margin-bottom:1rem; }
+    .back-home:hover { color:var(--auth-text); }
+  </style>
+</head>
+<body>
+<div class="auth-wrapper">
+  <a href="{% url 'home' %}" class="back-home">
+    <i class="fa-solid fa-arrow-left"></i> Retour à l'accueil
+  </a>
+  <div class="auth-brand">
+    <div class="auth-brand-icon"><i class="fa-solid fa-star-of-life"></i></div>
+    <div class="auth-brand-name">ClubHub</div>
+  </div>
+  <div class="auth-card">
+    <h1 class="auth-title">Bienvenue !</h1>
+    <p class="auth-sub">Connectez-vous pour accéder à votre espace.</p>
 
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger mb-4">
-            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-        </div>
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label class="form-label" for="{{ form.username.id_for_label }}">Nom d'utilisateur</label>
-                <input type="text" name="username" id="{{ form.username.id_for_label }}"
-                       class="form-control" placeholder="Votre identifiant" autofocus autocomplete="username">
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="{{ form.password.id_for_label }}">Mot de passe</label>
-                <input type="password" name="password" id="{{ form.password.id_for_label }}"
-                       class="form-control" placeholder="••••••••" autocomplete="current-password">
-            </div>
-            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.25rem;">
-                Se connecter
-            </button>
-        </form>
-
-        <p class="text-muted text-sm text-center" style="margin-top: 1.5rem;">
-            Pas encore de compte ?
-            <a href="{% url 'register' %}" style="color: var(--primary); font-weight: 500;">S'inscrire</a>
-        </p>
+    {% if form.non_field_errors %}
+    <div class="alert">
+      {% for error in form.non_field_errors %}{{ error }}{% endfor %}
     </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="{{ form.username.id_for_label }}">Identifiant</label>
+        <input type="text" name="username" id="{{ form.username.id_for_label }}"
+               class="form-control" placeholder="Votre nom d'utilisateur" autofocus autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="{{ form.password.id_for_label }}">Mot de passe</label>
+        <input type="password" name="password" id="{{ form.password.id_for_label }}"
+               class="form-control" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-auth">
+        <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+      </button>
+    </form>
+  </div>
+  <p class="auth-footer">
+    Pas encore de compte ? <a href="{% url 'register' %}">S'inscrire gratuitement</a>
+  </p>
 </div>
-{% endblock %}
+</body>
+</html>

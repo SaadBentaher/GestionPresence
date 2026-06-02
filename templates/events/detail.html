@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'event_list' %}" class="breadcrumb-link">Événements</a>
+<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+<span class="breadcrumb-item">{{ event.title }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="event-detail-hero">
+  <div class="event-hero-cover">
+    {% if event.cover_image %}
+    <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+    {% else %}
+    <div class="event-hero-cover-placeholder">
+      <i class="fa-solid fa-calendar-star"></i>
+    </div>
+    {% endif %}
+    <div class="event-hero-overlay"></div>
+    <div class="event-hero-content-overlay">
+      <div class="event-hero-badge event-hero-badge--{{ event.event_type }}">
+        {% if event.event_type == 'online' %}<i class="fa-solid fa-wifi"></i> En ligne
+        {% elif event.event_type == 'hybrid' %}<i class="fa-solid fa-arrows-left-right"></i> Hybride
+        {% else %}<i class="fa-solid fa-location-dot"></i> Présentiel{% endif %}
+      </div>
+      {% if event.status == 'cancelled' %}
+      <div class="event-cancelled-badge">
+        <i class="fa-solid fa-ban"></i> Événement annulé
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="event-detail-grid">
+
+  <div class="event-detail-main">
+    <div class="card">
+      <div class="card-body">
+        <div class="event-detail-club">
+          <a href="{% url 'club_detail' slug=event.club.slug %}">
+            <i class="fa-solid fa-users"></i>
+            {{ event.club.name }}
+          </a>
+        </div>
+        <h1 class="event-detail-title">{{ event.title }}</h1>
+
+        <div class="event-detail-stats">
+          <div class="eds-item">
+            <i class="fa-solid fa-calendar"></i>
+            <span>{{ event.date|date:"l d F Y" }}</span>
+          </div>
+          <div class="eds-item">
+            <i class="fa-solid fa-clock"></i>
+            <span>{{ event.start_time|time:"H:i" }}{% if event.end_time %} — {{ event.end_time|time:"H:i" }}{% endif %}</span>
+          </div>
+          {% if event.location %}
+          <div class="eds-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>{{ event.location }}</span>
+          </div>
+          {% endif %}
+          <div class="eds-item">
+            <i class="fa-solid fa-users"></i>
+            <span>{{ reg_count }} inscrit{{ reg_count|pluralize }}
+              {% if event.capacity > 0 %}/ {{ event.capacity }}{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="event-detail-description">
+          {{ event.description|linebreaks }}
+        </div>
+
+        {% if event.get_tag_list %}
+        <div class="club-tags">
+          {% for tag in event.get_tag_list %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="event-detail-sidebar">
+
+    <!-- Registration card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        {% if user.is_authenticated %}
+          {% if event.status == 'cancelled' %}
+          <div class="reg-status reg-status--cancelled">
+            <i class="fa-solid fa-ban"></i>
+            <div>Cet événement a été annulé</div>
+          </div>
+
+          {% elif registration %}
+            {% if registration.status == 'registered' %}
+            <div class="reg-status reg-status--confirmed">
+              <i class="fa-solid fa-circle-check"></i>
+              <div>
+                <strong>Vous êtes inscrit</strong>
+                <div class="text-sm">Inscrit le {{ registration.registered_at|date:"d M Y" }}</div>
+              </div>
+            </div>
+            {% if not event.is_past %}
+            <a href="{% url 'event_cancel_registration' pk=event.pk %}" class="btn btn-secondary btn-block mt-4">
+              <i class="fa-solid fa-xmark"></i> Annuler mon inscription
+            </a>
+            {% endif %}
+            {% elif registration.status == 'cancelled' %}
+            <div class="reg-status reg-status--cancelled">
+              <i class="fa-solid fa-circle-xmark"></i>
+              <div>Inscription annulée</div>
+            </div>
+            {% if event.is_registration_open %}
+            <form method="post" action="{% url 'event_register' pk=event.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-block mt-4">
+                <i class="fa-solid fa-rotate-right"></i> Se ré-inscrire
+              </button>
+            </form>
+            {% endif %}
+            {% endif %}
+
+          {% elif can_register %}
+          <div class="reg-info">
+            {% if event.capacity > 0 %}
+            <div class="reg-spots">
+              <i class="fa-solid fa-ticket"></i>
+              {{ event.spots_remaining }} place{{ event.spots_remaining|pluralize }} restante{{ event.spots_remaining|pluralize }}
+            </div>
+            {% endif %}
+            {% if event.registration_deadline %}
+            <div class="reg-deadline">
+              <i class="fa-solid fa-hourglass-half"></i>
+              Inscriptions jusqu'au {{ event.registration_deadline|date:"d M Y à H:i" }}
+            </div>
+            {% endif %}
+          </div>
+          <form method="post" action="{% url 'event_register' pk=event.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-circle-plus"></i> S'inscrire à cet événement
+            </button>
+          </form>
+
+          {% elif event.is_past %}
+          <div class="reg-status reg-status--past">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <div>Cet événement est terminé</div>
+          </div>
+          {% else %}
+          <div class="reg-status reg-status--closed">
+            <i class="fa-solid fa-door-closed"></i>
+            <div>Les inscriptions sont fermées</div>
+          </div>
+          {% endif %}
+
+        {% else %}
+        <div class="reg-cta">
+          <p>Connectez-vous pour vous inscrire à cet événement.</p>
+          <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary btn-block">
+            Se connecter
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Participants preview -->
+    {% if participants %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-users"></i> Participants ({{ reg_count }})</h3>
+      </div>
+      <div class="card-body">
+        <div class="participants-preview">
+          {% for r in participants %}
+          <div class="participant-chip" title="{{ r.user.get_full_name|default:r.user.username }}">
+            <div class="participant-avatar">{{ r.user.get_initials }}</div>
+          </div>
+          {% endfor %}
+          {% if reg_count > 20 %}
+          <div class="participant-chip participant-chip--more">+{{ reg_count|add:"-20" }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Event info sidebar -->
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Détails</h3></div>
+      <div class="card-body">
+        <div class="event-info-list">
+          <div class="event-info-row">
+            <i class="fa-solid fa-users"></i>
+            <div>
+              <div class="ei-label">Club organisateur</div>
+              <a href="{% url 'club_detail' slug=event.club.slug %}" class="ei-value ei-value--link">
+                {{ event.club.name }}
+              </a>
+            </div>
+          </div>
+          <div class="event-info-row">
+            <i class="fa-solid fa-calendar"></i>
+            <div>
+              <div class="ei-label">Date</div>
+              <div class="ei-value">{{ event.date|date:"d F Y" }}</div>
+            </div>
+          </div>
+          <div class="event-info-row">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <div class="ei-label">Heure</div>
+              <div class="ei-value">{{ event.start_time|time:"H:i" }}{% if event.end_time %} — {{ event.end_time|time:"H:i" }}{% endif %}</div>
+            </div>
+          </div>
+          {% if event.location %}
+          <div class="event-info-row">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>
+              <div class="ei-label">Lieu</div>
+              <div class="ei-value">{{ event.location }}</div>
+              {% if event.location_url %}
+              <a href="{{ event.location_url }}" target="_blank" class="ei-link">
+                Voir sur la carte <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+          {% if event.capacity > 0 %}
+          <div class="event-info-row">
+            <i class="fa-solid fa-ticket"></i>
+            <div>
+              <div class="ei-label">Capacité</div>
+              <div class="ei-value">{{ event.capacity }} places</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

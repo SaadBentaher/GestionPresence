@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks %}
+{% block title %}Créer un club{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'club_list' %}" class="breadcrumb-link">Clubs</a>
+<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+<span class="breadcrumb-item">Créer un club</span>
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <div class="form-page-icon"><i class="fa-solid fa-plus-circle"></i></div>
+    <div>
+      <h1 class="form-page-title">Créer un nouveau club</h1>
+      <p class="form-page-subtitle">Votre club sera soumis à validation avant d'être publié.</p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="form-sections">
+    {% csrf_token %}
+
+    <!-- Section 1: Identité -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">01</div>
+        <div>
+          <h2 class="form-section-title">Identité du club</h2>
+          <p class="form-section-desc">Nom, catégorie et description principale</p>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group form-group--wide">
+            <label class="form-label form-label--required">Nom du club</label>
+            {% render_field form.name class="form-control" placeholder="Ex: Club de Robotique EMSI" %}
+            {% if form.name.errors %}<div class="form-error">{{ form.name.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Catégorie</label>
+            {% render_field form.category class="form-control" %}
+            {% if form.category.errors %}<div class="form-error">{{ form.category.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Slogan / Description courte</label>
+          {% render_field form.short_description class="form-control" rows="2" placeholder="En une phrase, qu&#39;est-ce que votre club ?" %}
+          {% if form.short_description.errors %}<div class="form-error">{{ form.short_description.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label--required">Description complète</label>
+          {% render_field form.description class="form-control" rows="6" placeholder="Décrivez les objectifs, les activités, les valeurs de votre club..." %}
+          {% if form.description.errors %}<div class="form-error">{{ form.description.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Mots-clés</label>
+            {% render_field form.tags class="form-control" placeholder="robotique, IA, code ..." %}
+            <div class="form-hint">Séparez les mots-clés par des virgules</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date de fondation</label>
+            {% render_field form.founding_date class="form-control" %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Médias -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">02</div>
+        <div>
+          <h2 class="form-section-title">Médias</h2>
+          <p class="form-section-desc">Logo et bannière de votre club</p>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Logo du club</label>
+            <div class="file-upload-area">
+              <i class="fa-solid fa-image"></i>
+              <span>Choisir un logo</span>
+              {% render_field form.logo class="file-input-hidden" %}
+            </div>
+            <div class="form-hint">PNG, JPG recommandé. Idéalement carré.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bannière</label>
+            <div class="file-upload-area">
+              <i class="fa-solid fa-panorama"></i>
+              <span>Choisir une bannière</span>
+              {% render_field form.banner class="file-input-hidden" %}
+            </div>
+            <div class="form-hint">Format paysage recommandé (16:9).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Contact -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">03</div>
+        <div>
+          <h2 class="form-section-title">Contact & Réseaux</h2>
+          <p class="form-section-desc">Comment les étudiants peuvent vous contacter</p>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email de contact</label>
+            {% render_field form.contact_email class="form-control" placeholder="club@emsi.ma" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            {% render_field form.contact_phone class="form-control" placeholder="+212 6xx xxx xxx" %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fa-brands fa-facebook" style="color:#1877F2"></i> Facebook</label>
+            {% render_field form.facebook class="form-control" placeholder="https://facebook.com/..." %}
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-brands fa-instagram" style="color:#E1306C"></i> Instagram</label>
+            {% render_field form.instagram class="form-control" placeholder="https://instagram.com/..." %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fa-brands fa-linkedin" style="color:#0A66C2"></i> LinkedIn</label>
+            {% render_field form.linkedin class="form-control" placeholder="https://linkedin.com/company/..." %}
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-globe"></i> Site web</label>
+            {% render_field form.website class="form-control" placeholder="https://..." %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Paramètres -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <div class="form-section-num">04</div>
+        <div>
+          <h2 class="form-section-title">Paramètres</h2>
+          <p class="form-section-desc">Visibilité et limites d'adhésion</p>
+        </div>
+      </div>
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre maximum de membres</label>
+            {% render_field form.max_members class="form-control" %}
+            <div class="form-hint">0 = aucune limite</div>
+          </div>
+          <div class="form-group form-group--check">
+            <label class="form-check-label">
+              {% render_field form.is_public %}
+              <span>Club public (visible sans connexion)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-submit">
+      <a href="{% url 'club_list' %}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-paper-plane"></i> Soumettre le club
+      </button>
+    </div>
+
+    <div class="form-notice">
+      <i class="fa-solid fa-circle-info"></i>
+      Votre club sera examiné par un administrateur avant d'apparaître sur la plateforme.
+    </div>
+  </form>
+</div>
+{% endblock %}

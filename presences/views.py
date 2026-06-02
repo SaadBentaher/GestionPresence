@@ -1,4 +1,5 @@
 import csv
+from django import forms as django_forms
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -8,15 +9,55 @@ from .forms import CustomUserCreationForm, SeanceForm, ModuleForm
 from .models import Utilisateur, Module, Seance, Presence
 
 
+class ProfileEditForm(django_forms.ModelForm):
+    class Meta:
+        model = Utilisateur
+        fields = ['first_name', 'last_name', 'email', 'bio', 'avatar',
+                  'phone', 'university', 'website', 'linkedin']
+        widgets = {
+            'bio': django_forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if not isinstance(field.widget, django_forms.FileInput):
+                field.widget.attrs.setdefault('class', 'form-control')
+
+
 def home(request):
     if request.user.is_authenticated:
-        if request.user.role == 'admin':
-            return redirect('dashboard_admin')
-        elif request.user.role == 'enseignant':
-            return redirect('dashboard_enseignant')
-        else:
-            return redirect('dashboard_etudiant')
-    return render(request, 'home.html')
+        return redirect('club_list')
+
+    from clubs.models import Club, ClubCategory
+    from events.models import Event
+    from django.utils import timezone as tz
+    from django.db.models import Count, Q
+
+    categories = ClubCategory.objects.annotate(
+        club_count=Count('clubs', filter=Q(clubs__status='approved'))
+    ).filter(club_count__gt=0)[:8]
+
+    featured_clubs = Club.objects.filter(
+        status='approved', is_featured=True
+    ).select_related('category')[:6]
+
+    upcoming_events = Event.objects.filter(
+        status='published', date__gte=tz.now().date()
+    ).select_related('club').order_by('date')[:5]
+
+    stats = {
+        'clubs': Club.objects.filter(status='approved').count(),
+        'members': Utilisateur.objects.filter(role__in=['etudiant', 'club_manager']).count(),
+        'events': Event.objects.filter(status='published').count(),
+    }
+
+    return render(request, 'home.html', {
+        'categories': categories,
+        'featured_clubs': featured_clubs,
+        'upcoming_events': upcoming_events,
+        'stats': stats,
+    })
 
 
 def register(request):
@@ -237,3 +278,33 @@ def dashboard_etudiant(request):
         'absent': total - present,
         'modules_data': modules_data,
     })
+
+
+@login_required
+def profile_view(request):
+    from clubs.models import Membership
+    from events.models import EventRegistration
+    memberships = Membership.objects.filter(
+        user=request.user, status='approved'
+    ).select_related('club').order_by('-joined_at')[:8]
+    upcoming_regs = EventRegistration.objects.filter(
+        user=request.user, status='registered',
+        event__date__gte=__import__('datetime').date.today()
+    ).select_related('event', 'event__club').order_by('event__date')[:5]
+    return render(request, 'accounts/profile.html', {
+        'memberships': memberships,
+        'upcoming_regs': upcoming_regs,
+    })
+
+
+@login_required
+def profile_edit(request):
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profil mis à jour avec succès.')
+            return redirect('profile')
+    else:
+        form = ProfileEditForm(instance=request.user)
+    return render(request, 'accounts/edit_profile.html', {'form': form})

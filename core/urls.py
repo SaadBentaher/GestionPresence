@@ -1,26 +1,49 @@
 from django.contrib import admin
 from django.urls import path, include
-from presences import views
+from django.conf import settings
+from django.conf.urls.static import static
+from presences import views as pres_views
+from clubs import views as clubs_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
+
+    # ── Landing & home ──────────────────────────────────────
+    path('', pres_views.home, name='home'),
+
+    # ── Auth ────────────────────────────────────────────────
     path('accounts/', include('django.contrib.auth.urls')),
-    path('register/', views.register, name='register'),
+    path('register/', pres_views.register, name='register'),
 
-    # Admin
-    path('dashboard/admin/', views.dashboard_admin, name='dashboard_admin'),
-    path('dashboard/admin/users/', views.admin_users, name='admin_users'),
-    path('dashboard/admin/users/<int:user_id>/delete/', views.delete_user, name='delete_user'),
-    path('dashboard/admin/modules/', views.admin_modules, name='admin_modules'),
-    path('dashboard/admin/modules/<int:module_id>/delete/', views.delete_module, name='delete_module'),
+    # ── Profile ─────────────────────────────────────────────
+    path('profile/', pres_views.profile_view, name='profile'),
+    path('profile/edit/', pres_views.profile_edit, name='profile_edit'),
 
-    # Enseignant
-    path('dashboard/enseignant/', views.dashboard_enseignant, name='dashboard_enseignant'),
-    path('dashboard/enseignant/seance/<int:seance_id>/', views.mark_attendance, name='mark_attendance'),
-    path('dashboard/enseignant/seance/<int:seance_id>/delete/', views.delete_seance, name='delete_seance'),
-    path('dashboard/enseignant/seance/<int:seance_id>/export/', views.export_attendance_csv, name='export_attendance_csv'),
+    # ── Attendance (existing) ────────────────────────────────
+    path('dashboard/admin/', pres_views.dashboard_admin, name='dashboard_admin'),
+    path('dashboard/admin/users/', pres_views.admin_users, name='admin_users'),
+    path('dashboard/admin/users/<int:user_id>/delete/', pres_views.delete_user, name='delete_user'),
+    path('dashboard/admin/modules/', pres_views.admin_modules, name='admin_modules'),
+    path('dashboard/admin/modules/<int:module_id>/delete/', pres_views.delete_module, name='delete_module'),
+    path('dashboard/enseignant/', pres_views.dashboard_enseignant, name='dashboard_enseignant'),
+    path('dashboard/enseignant/seance/<int:seance_id>/', pres_views.mark_attendance, name='mark_attendance'),
+    path('dashboard/enseignant/seance/<int:seance_id>/delete/', pres_views.delete_seance, name='delete_seance'),
+    path('dashboard/enseignant/seance/<int:seance_id>/export/', pres_views.export_attendance_csv, name='export_attendance_csv'),
+    path('dashboard/etudiant/', pres_views.dashboard_etudiant, name='dashboard_etudiant'),
 
-    # Etudiant
-    path('dashboard/etudiant/', views.dashboard_etudiant, name='dashboard_etudiant'),
+    # ── Clubs ───────────────────────────────────────────────
+    path('clubs/', include('clubs.urls')),
+
+    # ── Admin: club review ───────────────────────────────────
+    path('admin-clubs/', clubs_views.admin_clubs, name='admin_clubs'),
+    path('admin-clubs/<int:pk>/review/', clubs_views.admin_review_club, name='admin_review_club'),
+
+    # ── Events ──────────────────────────────────────────────
+    path('events/', include('events.urls')),
+
+    # ── Notifications ────────────────────────────────────────
+    path('notifications/', include('notifications.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

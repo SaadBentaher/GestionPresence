@@ -1,34 +1,87 @@
-{% extends 'base.html' %}
-{% block title %}Inscription{% endblock %}
-{% block content %}
-<div class="card" style="width: 100%; max-width: 480px;">
-    <div class="card-body" style="padding: 2rem;">
-        <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.25rem;">Créer un compte</h2>
-        <p class="text-muted text-sm" style="margin-bottom: 1.75rem;">Remplissez le formulaire pour rejoindre la plateforme.</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription — ClubHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/clubs.css' %}">
+  <script>(function(){var t=localStorage.getItem('clubhub-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <style>
+    :root { --primary:#6366F1; --auth-bg:#F1F5F9; --auth-card:#fff; --auth-border:#E2E8F0; --auth-text:#0F172A; --auth-muted:#64748B; --auth-input-bg:#F8FAFC; --auth-label:#374151; }
+    [data-theme="dark"] { --auth-bg:#0D1117; --auth-card:#161B22; --auth-border:#30363D; --auth-text:#E6EDF3; --auth-muted:#8B949E; --auth-input-bg:#1C2128; --auth-label:#9CA3AF; }
+    body { margin:0; background:var(--auth-bg); color:var(--auth-text); display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'Inter',sans-serif; padding:2rem 0; transition:background .2s; }
+    .auth-wrapper { width:100%; max-width:480px; padding:1.5rem; }
+    .auth-brand { text-align:center; margin-bottom:2rem; }
+    .auth-brand-icon { width:52px; height:52px; background:var(--primary); border-radius:14px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:1.4rem; margin-bottom:.75rem; }
+    .auth-brand-name { font-size:1.5rem; font-weight:800; color:var(--auth-text); }
+    .auth-card { background:var(--auth-card); border:1px solid var(--auth-border); border-radius:20px; padding:2.25rem 2rem; box-shadow:0 4px 24px rgba(0,0,0,.12); transition:background .2s,border-color .2s; }
+    .auth-title { font-size:1.25rem; font-weight:700; color:var(--auth-text); margin:0 0 .25rem; }
+    .auth-sub { font-size:.875rem; color:var(--auth-muted); margin:0 0 1.75rem; }
+    .form-group { margin-bottom:1.1rem; }
+    .form-label { display:block; font-size:.8rem; font-weight:600; color:var(--auth-label); margin-bottom:.4rem; letter-spacing:.02em; text-transform:uppercase; }
+    .form-control { width:100%; padding:.65rem .85rem; border:1.5px solid var(--auth-border); border-radius:10px; font-size:.925rem; font-family:inherit; color:var(--auth-text); background:var(--auth-input-bg); outline:none; box-sizing:border-box; transition:border-color .2s,box-shadow .2s; color-scheme:inherit; }
+    .form-control:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+    select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .65rem center; background-size:1.2em; padding-right:2.2rem; }
+    .form-hint { font-size:.78rem; color:var(--auth-muted); margin:.3rem 0 0; }
+    .form-error { font-size:.8rem; color:#EF4444; margin:.3rem 0 0; }
+    .btn-auth { width:100%; padding:.75rem; background:var(--primary); color:#fff; border:none; border-radius:10px; font-size:.95rem; font-weight:600; font-family:inherit; cursor:pointer; margin-top:.5rem; transition:background .2s,transform .1s; }
+    .btn-auth:hover { background:#4F46E5; }
+    .btn-auth:active { transform:scale(.98); }
+    .auth-footer { text-align:center; margin-top:1.5rem; font-size:.875rem; color:var(--auth-muted); }
+    .auth-footer a { color:var(--primary); font-weight:600; text-decoration:none; }
+    .auth-footer a:hover { text-decoration:underline; }
+    .back-home { display:inline-flex; align-items:center; gap:.4rem; font-size:.825rem; color:var(--auth-muted); text-decoration:none; margin-bottom:1rem; }
+    .back-home:hover { color:var(--auth-text); }
+  </style>
+</head>
+<body>
+<div class="auth-wrapper">
+  <a href="{% url 'home' %}" class="back-home">
+    <i class="fa-solid fa-arrow-left"></i> Retour à l'accueil
+  </a>
+  <div class="auth-brand">
+    <div class="auth-brand-icon"><i class="fa-solid fa-star-of-life"></i></div>
+    <div class="auth-brand-name">ClubHub</div>
+  </div>
+  <div class="auth-card">
+    <h1 class="auth-title">Créer un compte</h1>
+    <p class="auth-sub">Rejoignez la plateforme des clubs étudiants.</p>
 
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-            <div class="form-group">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                    <p class="form-hint">{{ field.help_text }}</p>
-                {% endif %}
-                {% for error in field.errors %}
-                    <p class="form-error">{{ error }}</p>
-                {% endfor %}
-            </div>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.field.widget.input_type == 'select' %}
+          <select name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-control">
+            {% for value, label in field.field.choices %}
+            <option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
-            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.25rem;">
-                Créer mon compte
-            </button>
-        </form>
-
-        <p class="text-muted text-sm text-center" style="margin-top: 1.5rem;">
-            Déjà un compte ?
-            <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 500;">Se connecter</a>
-        </p>
-    </div>
+          </select>
+        {% else %}
+          <input type="{{ field.field.widget.input_type }}"
+                 name="{{ field.html_name }}"
+                 id="{{ field.id_for_label }}"
+                 class="form-control"
+                 {% if field.value %}value="{{ field.value }}"{% endif %}>
+        {% endif %}
+        {% if field.help_text %}<p class="form-hint">{{ field.help_text }}</p>{% endif %}
+        {% for error in field.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn-auth">
+        <i class="fa-solid fa-user-plus"></i> Créer mon compte
+      </button>
+    </form>
+  </div>
+  <p class="auth-footer">
+    Déjà un compte ? <a href="{% url 'login' %}">Se connecter</a>
+  </p>
 </div>
-{% endblock %}
+</body>
+</html>

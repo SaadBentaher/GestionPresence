@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-item">Notifications</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Notifications</h1>
+    <p class="page-subtitle">
+      {% if unread_count %}{{ unread_count }} non lue{{ unread_count|pluralize }}{% else %}Tout est à jour{% endif %}
+    </p>
+  </div>
+  {% if notifications %}
+  <form method="post" action="{% url 'mark_all_read' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-secondary">
+      <i class="fa-solid fa-check-double"></i> Tout marquer comme lu
+    </button>
+  </form>
+  {% endif %}
+</div>
+
+{% if notifications %}
+<div class="notifications-list">
+  {% for notif in notifications %}
+  <div class="notif-item {% if not notif.is_read %}notif-item--unread{% endif %}">
+    <div class="notif-icon notif-icon--{{ notif.notification_type }}">
+      <i class="fa-solid {{ notif.get_icon }}"></i>
+    </div>
+    <div class="notif-body">
+      {% if notif.link %}
+      <a href="{{ notif.link }}" class="notif-title">{{ notif.title }}</a>
+      {% else %}
+      <div class="notif-title">{{ notif.title }}</div>
+      {% endif %}
+      <div class="notif-message">{{ notif.message }}</div>
+      <div class="notif-meta">
+        {% if notif.sender %}Par {{ notif.sender.get_full_name|default:notif.sender.username }} · {% endif %}
+        {{ notif.created_at|date:"d M Y à H:i" }}
+      </div>
+    </div>
+    {% if not notif.is_read %}
+    <div class="notif-unread-dot"></div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state empty-state--large">
+  <div class="empty-icon"><i class="fa-solid fa-bell-slash"></i></div>
+  <h3 class="empty-title">Aucune notification</h3>
+  <p class="empty-desc">Vous n'avez aucune notification pour le moment.</p>
+</div>
+{% endif %}
+{% endblock %}

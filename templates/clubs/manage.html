@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Gérer — {{ club.name }}{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'club_detail' slug=club.slug %}" class="breadcrumb-link">{{ club.name }}</a>
+<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+<span class="breadcrumb-item">Gestion</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Gérer {{ club.name }}</h1>
+    <p class="page-subtitle">Membres, événements et annonces de votre club</p>
+  </div>
+  <div class="page-header-actions">
+    <a href="{% url 'club_edit' slug=club.slug %}" class="btn btn-secondary">
+      <i class="fa-solid fa-pen"></i> Modifier le club
+    </a>
+    <a href="{% url 'event_create' club_slug=club.slug %}" class="btn btn-primary">
+      <i class="fa-solid fa-calendar-plus"></i> Créer un événement
+    </a>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div class="manage-stats">
+  <div class="mstat-card">
+    <div class="mstat-icon mstat-icon--blue"><i class="fa-solid fa-users"></i></div>
+    <div class="mstat-body">
+      <div class="mstat-num">{{ members.count }}</div>
+      <div class="mstat-label">Membres actifs</div>
+    </div>
+  </div>
+  <div class="mstat-card">
+    <div class="mstat-icon mstat-icon--amber"><i class="fa-solid fa-clock"></i></div>
+    <div class="mstat-body">
+      <div class="mstat-num">{{ pending_members.count }}</div>
+      <div class="mstat-label">Demandes en attente</div>
+    </div>
+  </div>
+  <div class="mstat-card">
+    <div class="mstat-icon mstat-icon--green"><i class="fa-solid fa-calendar-check"></i></div>
+    <div class="mstat-body">
+      <div class="mstat-num">{{ club.events.filter.count }}</div>
+      <div class="mstat-label">Événements publiés</div>
+    </div>
+  </div>
+  <div class="mstat-card">
+    <div class="mstat-icon mstat-icon--purple"><i class="fa-solid fa-bullhorn"></i></div>
+    <div class="mstat-body">
+      <div class="mstat-num">{{ announcements.count }}</div>
+      <div class="mstat-label">Annonces</div>
+    </div>
+  </div>
+</div>
+
+<div class="manage-grid">
+
+  <!-- Pending requests -->
+  <div class="manage-section">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <i class="fa-solid fa-user-clock"></i>
+          Demandes en attente
+          {% if pending_members.count %}
+          <span class="badge badge-warning" style="margin-left:.5rem">{{ pending_members.count }}</span>
+          {% endif %}
+        </h2>
+      </div>
+      <div class="card-body p-0">
+        {% if pending_members %}
+        {% for m in pending_members %}
+        <div class="request-row">
+          <div class="request-avatar">
+            {% if m.user.avatar %}
+            <img src="{{ m.user.avatar.url }}" alt="">
+            {% else %}
+            {{ m.user.get_initials }}
+            {% endif %}
+          </div>
+          <div class="request-info">
+            <div class="request-name">{{ m.user.get_full_name|default:m.user.username }}</div>
+            {% if m.join_message %}
+            <div class="request-message">"{{ m.join_message|truncatechars:100 }}"</div>
+            {% endif %}
+            <div class="request-date">{{ m.requested_at|date:"d M Y à H:i" }}</div>
+          </div>
+          <div class="request-actions">
+            <form method="post" action="{% url 'approve_member' slug=club.slug membership_id=m.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-success" title="Accepter">
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </form>
+            <form method="post" action="{% url 'reject_member' slug=club.slug membership_id=m.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger" title="Refuser">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <i class="fa-solid fa-inbox" style="font-size:2rem;color:var(--text-light);margin-bottom:.75rem;display:block"></i>
+          <p>Aucune demande en attente</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Members list -->
+  <div class="manage-section">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <i class="fa-solid fa-users"></i>
+          Membres ({{ members.count }})
+        </h2>
+      </div>
+      <div class="card-body p-0">
+        {% if members %}
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Membre</th>
+                <th>Rôle</th>
+                <th>Depuis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in members %}
+              <tr>
+                <td>
+                  <div class="table-user-cell">
+                    <div class="table-user-avatar">{{ m.user.get_initials }}</div>
+                    <div>
+                      <div class="table-user-name">{{ m.user.get_full_name|default:m.user.username }}</div>
+                      <div class="table-user-sub">{{ m.user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge {% if m.role == 'owner' %}badge-info{% elif m.role == 'manager' %}badge-warning{% else %}badge-neutral{% endif %}">
+                    {{ m.get_role_display }}
+                  </span>
+                </td>
+                <td class="text-sm text-muted">{{ m.joined_at|date:"d M Y"|default:"—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <p>Aucun membre pour le moment.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Announcements -->
+<div class="card mt-6">
+  <div class="card-header">
+    <h2 class="card-title"><i class="fa-solid fa-bullhorn"></i> Annonces</h2>
+    <a href="{% url 'create_announcement' slug=club.slug %}" class="btn btn-sm btn-primary">
+      <i class="fa-solid fa-plus"></i> Nouvelle annonce
+    </a>
+  </div>
+  <div class="card-body p-0">
+    {% if announcements %}
+    {% for ann in announcements %}
+    <div class="announcement-manage-row">
+      <div class="ann-manage-body">
+        {% if ann.is_pinned %}
+        <span class="badge badge-info" style="margin-bottom:.25rem"><i class="fa-solid fa-thumbtack"></i> Épinglée</span>
+        {% endif %}
+        <div class="ann-manage-title">{{ ann.title }}</div>
+        <div class="ann-manage-content">{{ ann.content|truncatechars:150 }}</div>
+        <div class="ann-manage-meta">{{ ann.created_at|date:"d M Y à H:i" }}</div>
+      </div>
+      <form method="post" action="{% url 'delete_announcement' slug=club.slug ann_id=ann.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette annonce ?')">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <p>Aucune annonce publiée.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

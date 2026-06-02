@@ -32,6 +32,20 @@
     --sidebar-width: 240px;
 }
 
+/* dark theme for style.css base elements */
+[data-theme="dark"] {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --surface-secondary: #1C2128;
+    --border: #30363D;
+    --text: #E6EDF3;
+    --text-muted: #8B949E;
+    --text-light: #6E7681;
+    --danger-light: rgba(239,68,68,.12);
+    --success-light: rgba(16,185,129,.12);
+    --warning-light: rgba(245,158,11,.12);
+}
+
 /* ========================================
    RESET & BASE
 ======================================== */
@@ -49,6 +63,7 @@ body {
     background: var(--bg);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    transition: background-color .2s ease, color .2s ease;
 }
 
 /* ========================================
@@ -358,7 +373,7 @@ body {
 }
 
 .btn-secondary {
-    background: white;
+    background: var(--surface);
     color: var(--text);
     border-color: var(--border);
 }
@@ -368,7 +383,7 @@ body {
 }
 
 .btn-danger {
-    background: white;
+    background: var(--surface);
     color: var(--danger);
     border-color: #FECACA;
 }
@@ -409,8 +424,8 @@ body {
     border-radius: var(--radius);
     font-size: 0.9rem;
     color: var(--text);
-    background: white;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s, background-color 0.2s, color 0.2s;
     line-height: 1.5;
     font-family: inherit;
     appearance: auto;
@@ -486,7 +501,11 @@ body {
 .badge-danger  { background: var(--danger-light);  color: #B91C1C; }
 .badge-info    { background: #EFF6FF; color: #1D4ED8; }
 .badge-warning { background: var(--warning-light); color: #B45309; }
-.badge-neutral { background: #F1F5F9; color: #475569; }
+.badge-neutral { background: var(--surface-secondary); color: var(--text-muted); }
+[data-theme="dark"] .badge-success { background: rgba(16,185,129,.15); color: #6EE7B7; }
+[data-theme="dark"] .badge-danger  { background: rgba(239,68,68,.15);  color: #FCA5A5; }
+[data-theme="dark"] .badge-info    { background: rgba(59,130,246,.15); color: #93C5FD; }
+[data-theme="dark"] .badge-warning { background: rgba(245,158,11,.15); color: #FCD34D; }
 
 /* ========================================
    ALERTS
@@ -504,6 +523,11 @@ body {
 .alert-error   { background: var(--danger-light);  border-color: #FECACA; color: #B91C1C; }
 .alert-info    { background: #EFF6FF; border-color: #BFDBFE; color: #1D4ED8; }
 .alert-warning { background: var(--warning-light); border-color: #FDE68A; color: #92400E; }
+[data-theme="dark"] .alert-success { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.3); color: #6EE7B7; }
+[data-theme="dark"] .alert-danger,
+[data-theme="dark"] .alert-error   { background: rgba(239,68,68,.12);  border-color: rgba(239,68,68,.3);  color: #FCA5A5; }
+[data-theme="dark"] .alert-info    { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.3); color: #93C5FD; }
+[data-theme="dark"] .alert-warning { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.3); color: #FCD34D; }
 
 /* ========================================
    PROGRESS BAR

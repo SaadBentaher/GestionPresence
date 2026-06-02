@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Annuler l'inscription{% endblock %}
+
+{% block content %}
+<div class="form-page form-page--narrow">
+  <div class="confirm-card confirm-card--warning">
+    <div class="confirm-icon"><i class="fa-solid fa-calendar-xmark"></i></div>
+    <h2 class="confirm-title">Annuler votre inscription ?</h2>
+    <p class="confirm-desc">
+      Vous êtes sur le point d'annuler votre inscription à <strong>{{ event.title }}</strong>
+      ({{ event.date|date:"d M Y" }}).
+    </p>
+    <div class="confirm-actions">
+      <a href="{% url 'event_detail' pk=event.pk %}" class="btn btn-secondary">Garder mon inscription</a>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning">
+          <i class="fa-solid fa-xmark"></i> Confirmer l'annulation
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Modifier le profil{% endblock %}
+
+{% block content %}
+<div class="form-page form-page--narrow">
+  <div class="form-page-header">
+    <div class="form-page-icon"><i class="fa-solid fa-user-pen"></i></div>
+    <div>
+      <h1 class="form-page-title">Modifier le profil</h1>
+      <p class="form-page-subtitle">{{ user.username }}</p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="form-sections">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            {% render_field form.first_name class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            {% render_field form.last_name class="form-control" %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          {% render_field form.email class="form-control" %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Biographie</label>
+          {% render_field form.bio class="form-control" rows="4" placeholder="Parlez un peu de vous..." %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Université / École</label>
+            {% render_field form.university class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            {% render_field form.phone class="form-control" %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Site web</label>
+            {% render_field form.website class="form-control" placeholder="https://..." %}
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-brands fa-linkedin" style="color:#0A66C2"></i> LinkedIn</label>
+            {% render_field form.linkedin class="form-control" placeholder="https://linkedin.com/in/..." %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Photo de profil</label>
+          {% if user.avatar %}
+          <div class="current-media">
+            <img src="{{ user.avatar.url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover">
+            <span class="current-media-label">Photo actuelle</span>
+          </div>
+          {% endif %}
+          {% render_field form.avatar class="form-control" %}
+        </div>
+      </div>
+    </div>
+    <div class="form-submit">
+      <a href="{% url 'profile' %}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-check"></i> Enregistrer
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

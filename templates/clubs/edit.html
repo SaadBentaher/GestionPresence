@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks %}
+{% block title %}Modifier — {{ club.name }}{% endblock %}
+
+{% block breadcrumb %}
+<a href="{% url 'club_list' %}" class="breadcrumb-link">Clubs</a>
+<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+<a href="{% url 'club_detail' slug=club.slug %}" class="breadcrumb-link">{{ club.name }}</a>
+<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+<span class="breadcrumb-item">Modifier</span>
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <div class="form-page-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+    <div>
+      <h1 class="form-page-title">Modifier {{ club.name }}</h1>
+      <p class="form-page-subtitle">Mettez à jour les informations du club.</p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="form-sections">
+    {% csrf_token %}
+    <div class="form-section">
+      <div class="form-section-body">
+        <div class="form-row">
+          <div class="form-group form-group--wide">
+            <label class="form-label form-label--required">Nom du club</label>
+            {% render_field form.name class="form-control" %}
+            {% if form.name.errors %}<div class="form-error">{{ form.name.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Catégorie</label>
+            {% render_field form.category class="form-control" %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description courte</label>
+          {% render_field form.short_description class="form-control" rows="2" %}
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Description</label>
+          {% render_field form.description class="form-control" rows="6" %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Logo</label>
+            {% if club.logo %}
+            <div class="current-media">
+              <img src="{{ club.logo.url }}" alt="Logo actuel" style="height:60px;border-radius:8px;">
+              <span class="current-media-label">Logo actuel</span>
+            </div>
+            {% endif %}
+            {% render_field form.logo class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bannière</label>
+            {% if club.banner %}
+            <div class="current-media">
+              <img src="{{ club.banner.url }}" alt="Bannière actuelle" style="height:60px;border-radius:8px;object-fit:cover;width:120px;">
+              <span class="current-media-label">Bannière actuelle</span>
+            </div>
+            {% endif %}
+            {% render_field form.banner class="form-control" %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email contact</label>
+            {% render_field form.contact_email class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            {% render_field form.contact_phone class="form-control" %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fa-brands fa-facebook" style="color:#1877F2"></i> Facebook</label>
+            {% render_field form.facebook class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-brands fa-instagram" style="color:#E1306C"></i> Instagram</label>
+            {% render_field form.instagram class="form-control" %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tags</label>
+            {% render_field form.tags class="form-control" %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date de fondation</label>
+            {% render_field form.founding_date class="form-control" %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-submit">
+      <a href="{% url 'club_detail' slug=club.slug %}" class="btn btn-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-check"></i> Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
